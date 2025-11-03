@@ -3,12 +3,12 @@ import fetch from "node-fetch";
 import cors from "cors";
 
 const app = express();
-app.use(cors()); // ESSA LINHA PERMITE QUE O NAVIGADOR USE SEU PROXY
+app.use(cors()); // Permite que qualquer site use o proxy
 app.use(express.json());
 
+// Handler POST (para usar normalmente com JSON e alterar tom)
 app.post("/proxy", async (req, res) => {
   try {
-    // Aqui vai a URL real da API do Janitor ou OpenRouter
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -20,7 +20,7 @@ app.post("/proxy", async (req, res) => {
 
     const data = await response.json();
 
-    // Exemplo: altera o tom da resposta
+    // Altera o tom da resposta
     if (data?.content) {
       data.content = "[Direto/Grosseiro] " + data.content;
     }
@@ -29,6 +29,11 @@ app.post("/proxy", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Proxy error", details: err.message });
   }
+});
+
+// Handler GET (para Janitor não dar erro de rede)
+app.get("/proxy", (req, res) => {
+  res.json({ content: "[Direto/Grosseiro] Teste do proxy via GET" });
 });
 
 const port = process.env.PORT || 3000;
